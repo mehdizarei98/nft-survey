@@ -1,0 +1,84 @@
+/* Design tokens: colour, type, spacing, shape. Swap fonts only here. */
+:root {
+  /* colour */
+  --color-bg: #efede5;
+  --color-text: #1d2925;
+  --color-text-muted: #47564f;
+  --color-text-faint: #59665f;
+  --color-border: #cdcfc4;
+  --color-surface: #faf9f3;
+  --color-info: #24584c;
+  --color-info-soft: #e7eee8;
+  --color-success-soft: #edf5ee;
+  --color-danger-soft: #fff0ed;
+  --color-warning-soft: #fff6e5;
+  --color-primary: #24584c;
+  --color-primary-contrast: #ffffff;
+  --color-surface-muted: #dce7dc;
+  --color-danger: #b3261e;
+  --color-success: #1b6e3c;
+  --color-warning: #8a5a00;
+  --color-focus: #2b59d1;
+  --color-studio-mark: #bcc997;
+  --color-control-border: #7b857b;
+
+  /* type */
+  --font-fa: 'Vazirmatn', system-ui, sans-serif;
+  --font-heading-en: Georgia, 'Times New Roman', serif;
+  --font-body-en: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --text-caption: 0.75rem;
+  --text-body-sm: 0.875rem;
+  --text-body: 1rem;
+  --text-label: 1.125rem;
+  --text-subheading: 1.5rem;
+  --text-heading-sm: 2rem;
+  --text-heading: 2.5rem;
+
+  /* spacing (multiples of 8) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-8: 64px;
+  --section-gap: 32px;
+  --page-gutter: 16px;
+  --content-max: 1280px;
+  --target-min: 44px;
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* shape */
+  --radius-card: 20px;
+  --radius-pill: 100px;
+  --radius-input: 16px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-gap: 64px;
+    --page-gutter: 40px;
+    --radius-card: 28px;
+  }
+}
+
+/* language-dependent type */
+:root[lang='fa'] {
+  --font-body: var(--font-fa);
+  --font-heading: var(--font-fa);
+  --lh-body: 1.8;
+  --tracking: 0;
+}
+
+:root[lang='en'] {
+  --font-body: var(--font-body-en);
+  --font-heading: var(--font-heading-en);
+  --lh-body: 1.5;
+  --tracking: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-fast: 0ms; --motion-normal: 0ms; }
+}
