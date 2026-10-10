@@ -1,9 +1,9 @@
-// Public survey form (v4.3). Vanilla ES modules, no build step.
+// Public survey form (v4.4). Vanilla ES modules, no build step.
 // Questions/options come from survey.json, wording of every other text from content.json
 // (both generated from the approved files; nothing is hand-typed here). Strings marked
 // "chrome" below are interface texts that are not part of the questionnaire.
 import {
-  CHANNELS, isShown, visibleCodes, normalize, roleOf,
+  CHANNELS, isShown, visibleCodes, normalize, roleOf, optionOrder, shownOptionOrders,
 } from './lib/model.js';
 
 // ============================================================ PRE-LAUNCH CONFIG
@@ -26,7 +26,7 @@ export const CONFIG = {
 // ===========================================================================
 
 const PLACEHOLDER = '..........';
-const DRAFT_KEY = 'nft-survey:4.3:draft';
+const DRAFT_KEY = 'nft-survey:4.4:draft';
 const SUBMIT_TIMEOUT_MS = 20000;
 
 // Page order of the public form (guide §3); a page is shown only if one of its questions is.
@@ -36,8 +36,8 @@ const PAGES = [
   { id: 'p3', ids: ['E01', 'E02', 'E03', 'E04', 'N01'] },
   { id: 'p4', ids: ['B01', 'C01'] },
   { id: 'p5', ids: ['L01', 'L02', 'L03', 'L05'] },
-  { id: 'p6', ids: ['F01', 'F02', 'F03', 'F04', 'B02', 'C02'] },
-  { id: 'p7', ids: ['P01', 'Z01'] },
+  { id: 'p6', ids: ['F01', 'F02', 'F03', 'F04', 'F05', 'F06', 'B02', 'C02'] },
+  { id: 'p7', ids: ['P01', 'D01', 'D02', 'D03', 'Z01'] },
 ];
 
 // chrome texts
@@ -307,7 +307,7 @@ function questionBlock(q) {
   fs.append(legend);
   const describedBy = [];
   if (m.note) { fs.append(h('p', { class: 'q-note', id: noteId, 'data-v': 'note', text: m.note })); describedBy.push(noteId); }
-  const block = { q, el: fs, inputs: [], labels: [], status: null, clear: null };
+  const block = { q, el: fs, inputs: [], labels: [], opts: [], status: null, clear: null };
 
   if (q.type === 'text') {
     const id = `${q.id}-field`;
@@ -322,7 +322,12 @@ function questionBlock(q) {
 
   const multiple = q.type === 'multiple';
   const list = h('div', { class: 'opts' });
-  for (const o of q.options) {
+  // Options are laid out in this respondent's order (JSON order for non-randomized questions).
+  // The order is a pure function of the response_id, so back/forward, reload and draft restore show the same layout.
+  const byCode = Object.fromEntries(q.options.map((o) => [o.code, o]));
+  for (const code of optionOrder(survey, q.id, state.responseId)) {
+    const o = byCode[code];
+    block.opts.push(o);
     const input = h('input', { type: multiple ? 'checkbox' : 'radio', name: q.id, value: String(o.code), 'data-code': String(o.code),
       onchange: (ev) => (multiple ? toggleMultiple(q, o.code, ev.target.checked) : setAnswer(q.id, o.code)) });
     const label = h('label', { class: 'opt', 'data-code': String(o.code) }, input, h('span', { class: 'opt-text', 'data-v': 'option', text: o.label }));
@@ -406,7 +411,7 @@ function syncPage() {
     const cur = q.type === 'multiple' ? (a[q.id] || []) : a[q.id] === undefined ? [] : [a[q.id]];
     const vis = new Set(visibleCodes(survey, q.id, a));
     const atMax = q.type === 'multiple' && cur.length >= q.maximum_selections;
-    q.options.forEach((o, i) => {
+    b.opts.forEach((o, i) => {
       const input = b.inputs[i];
       input.checked = cur.includes(o.code);
       b.labels[i].hidden = !vis.has(o.code);
@@ -473,6 +478,8 @@ function buildPayload() {
     channel: state.channel,
     confirmations: { G01: true, G02: true },
     answers,
+    // the option order each randomized question was laid out in (only questions shown to this respondent)
+    option_order: shownOptionOrders(survey, answers, state.responseId),
     website: document.getElementById('website')?.value ?? '',
   };
 }

@@ -1,5 +1,5 @@
 {
-  "version": "4.3",
+  "version": "4.4",
   "contains_human_data": false,
   "questions": [
     {
@@ -31,9 +31,8 @@
       "id": "A02",
       "text": "برای چه کاری ممکن است از یک بازار NFT استفاده کنید؟ یک یا چند گزینه",
       "type": "multiple",
-      "maximum_selections": 3,
+      "maximum_selections": 4,
       "exclusive_codes": [
-        3,
         5,
         6
       ],
@@ -48,7 +47,7 @@
         },
         {
           "code": 3,
-          "label": "فقط دیدن آثار و آشنایی با آن‌ها"
+          "label": "دیدن آثار و آشنایی با آن‌ها"
         },
         {
           "code": 4,
@@ -300,9 +299,9 @@
     },
     {
       "id": "N01",
-      "text": "چه چیزهایی باعث شده‌اند از بازار NFT استفاده نکنید یا درباره استفاده از آن مردد باشید؟ حداکثر دو گزینه",
+      "text": "چه چیزهایی باعث شده‌اند از بازار NFT استفاده نکنید یا درباره استفاده از آن مردد باشید؟ حداکثر سه مورد مهم‌تر",
       "type": "multiple",
-      "maximum_selections": 2,
+      "maximum_selections": 3,
       "exclusive_codes": [
         9,
         10
@@ -335,6 +334,14 @@
         {
           "code": 7,
           "label": "نگران دسترسی به خدمات هستم."
+        },
+        {
+          "code": 11,
+          "label": "نگران کلاهبرداری یا جعلی‌بودن اثر هستم."
+        },
+        {
+          "code": 12,
+          "label": "وضعیت قانونی آن برایم روشن نیست."
         },
         {
           "code": 8,
@@ -677,6 +684,72 @@
       ]
     },
     {
+      "id": "F05",
+      "text": "بررسی آثار توسط بازار پیش از نمایش عمومی، برای جلوگیری از نمایش محتوای نامناسب یا جعلی، برای شما چقدر مفید است؟",
+      "type": "single",
+      "maximum_selections": 1,
+      "exclusive_codes": [],
+      "options": [
+        {
+          "code": 1,
+          "label": "اصلاً مفید نیست"
+        },
+        {
+          "code": 2,
+          "label": "کمی مفید است"
+        },
+        {
+          "code": 3,
+          "label": "نسبتاً مفید است"
+        },
+        {
+          "code": 4,
+          "label": "بسیار مفید است"
+        },
+        {
+          "code": 97,
+          "label": "نمی‌توانم قضاوت کنم."
+        },
+        {
+          "code": 98,
+          "label": "به استفاده من مربوط نیست."
+        }
+      ]
+    },
+    {
+      "id": "F06",
+      "text": "دریافت اعلان هنگام فروش اثر، دریافت پیشنهاد یا تغییر قیمت، برای شما چقدر مفید است؟",
+      "type": "single",
+      "maximum_selections": 1,
+      "exclusive_codes": [],
+      "options": [
+        {
+          "code": 1,
+          "label": "اصلاً مفید نیست"
+        },
+        {
+          "code": 2,
+          "label": "کمی مفید است"
+        },
+        {
+          "code": 3,
+          "label": "نسبتاً مفید است"
+        },
+        {
+          "code": 4,
+          "label": "بسیار مفید است"
+        },
+        {
+          "code": 97,
+          "label": "نمی‌توانم قضاوت کنم."
+        },
+        {
+          "code": 98,
+          "label": "به استفاده من مربوط نیست."
+        }
+      ]
+    },
+    {
       "id": "B02",
       "text": "ذخیره آثار در فهرست علاقه‌مندی برای بررسی بعدی چقدر برای شما مفید است؟",
       "type": "single",
@@ -777,12 +850,103 @@
           "label": "ذخیره پیش‌نویس اثر؛ فقط نقش عرضه"
         },
         {
+          "code": 9,
+          "label": "بررسی آثار پیش از نمایش عمومی"
+        },
+        {
+          "code": 10,
+          "label": "اعلان فروش، پیشنهاد یا تغییر قیمت"
+        },
+        {
           "code": 7,
           "label": "هیچ‌کدام اولویت من نیست."
         },
         {
           "code": 8,
           "label": "هنوز نمی‌توانم انتخاب کنم."
+        }
+      ]
+    },
+    {
+      "id": "D01",
+      "text": "سن شما در کدام بازه است؟ یک گزینه",
+      "type": "single",
+      "maximum_selections": 1,
+      "exclusive_codes": [],
+      "options": [
+        {
+          "code": 1,
+          "label": "۱۸ تا ۲۴ سال"
+        },
+        {
+          "code": 2,
+          "label": "۲۵ تا ۳۴ سال"
+        },
+        {
+          "code": 3,
+          "label": "۳۵ تا ۴۴ سال"
+        },
+        {
+          "code": 4,
+          "label": "۴۵ سال یا بیشتر"
+        },
+        {
+          "code": 99,
+          "label": "ترجیح می‌دهم پاسخ ندهم."
+        }
+      ]
+    },
+    {
+      "id": "D02",
+      "text": "حوزه اصلی تحصیل یا کار شما کدام است؟ یک گزینه",
+      "type": "single",
+      "maximum_selections": 1,
+      "exclusive_codes": [],
+      "options": [
+        {
+          "code": 1,
+          "label": "هنر، طراحی یا رسانه"
+        },
+        {
+          "code": 2,
+          "label": "فناوری اطلاعات، نرم‌افزار یا مهندسی"
+        },
+        {
+          "code": 3,
+          "label": "اقتصاد، مالی یا کسب‌وکار"
+        },
+        {
+          "code": 4,
+          "label": "حوزه دیگر"
+        },
+        {
+          "code": 99,
+          "label": "ترجیح می‌دهم پاسخ ندهم."
+        }
+      ]
+    },
+    {
+      "id": "D03",
+      "text": "آیا خودتان اثر دیجیتال، مانند تصویر، طرح، عکس یا تصویرسازی، می‌سازید؟ یک گزینه",
+      "type": "single",
+      "maximum_selections": 1,
+      "exclusive_codes": [],
+      "options": [
+        {
+          "code": 1,
+          "label": "بله، به‌طور منظم"
+        },
+        {
+          "code": 2,
+          "label": "گاهی"
+        },
+        {
+          "code": 3,
+          "label": "خیر"
+        },
+        {
+          "code": 99,
+          "label": "ترجیح می‌دهم پاسخ ندهم."
         }
       ]
     },
@@ -822,12 +986,59 @@
       2,
       3,
       4,
+      9,
+      10,
       7,
       8
     ],
     "P01_conditional": {
       "5": "buyer",
       "6": "seller"
+    },
+    "background": "D01, D02, D03 shown to everyone, after P01 and before Z01"
+  },
+  "option_order": {
+    "randomized_questions": [
+      "E02",
+      "N01",
+      "B01",
+      "C01",
+      "P01"
+    ],
+    "rule": "Substantive options are shuffled once per respondent; options listed in fixed_last keep their order at the end. The shown order is stored per question as <Q>__order (codes joined by ;).",
+    "fixed_last": {
+      "E02": [
+        9,
+        10,
+        11
+      ],
+      "N01": [
+        8,
+        9,
+        10
+      ],
+      "B01": [
+        6,
+        7
+      ],
+      "C01": [
+        6,
+        7
+      ],
+      "P01": [
+        7,
+        8
+      ]
     }
-  }
+  },
+  "changes_from_4_3": [
+    "N01: options 11 (fraud/fake artwork) and 12 (unclear legal status) added before 8 (other). Not equivalent to 4.3 N01.",
+    "F05 (pre-publication review) and F06 (sale/offer/price alerts; comparator outside the current product scope) added after F04, same 1-4/97/98 scale.",
+    "P01: options 9 and 10 added (general, shown to everyone); max 3 and exclusives 7, 8 unchanged. Not equivalent to 4.3 P01.",
+    "D01-D03 background (age band, main field, makes digital artworks) added before Z01; 99 = prefer not to answer.",
+    "Option order of substantive options randomized in E02, N01, B01, C01, P01; order stored as <Q>__order.",
+    "A02: option 3 reworded from \"only viewing\" to \"viewing artworks and getting familiar with them\" and is no longer exclusive (exclusives now 5, 6; max 4), so a respondent can combine buying/selling with viewing. Role derivation (1 = buyer, 2 = seller) is unchanged; option 3 alone or with 4 gives role \"other\" as before. A02 option 3 is not equivalent to 4.3.",
+    "N01: maximum raised from 2 to 3 and the question now says \"the three most important\" (matches E02). Not equivalent to 4.3 N01 (already the case because of options 11, 12).",
+    "All other question texts, options and codes unchanged."
+  ]
 }
