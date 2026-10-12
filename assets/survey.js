@@ -25,6 +25,7 @@ export const CONFIG = {
   // Test phase: while set, this one paragraph replaces the first three intro paragraphs (purpose,
   // voluntary/no-personal-data text, retention). Set to null before the public launch.
   TEST_NOTICE: 'تجمیع داده‌های آزمایشی پیش از انتشار عمومی',
+  TEST_NOTICE_DETAIL: 'بخشی از پاسخ‌های این مرحله را عامل‌های هوش مصنوعی با پرسوناهای ساختگی برای آزمون سامانه تولید می‌کنند. این پاسخ‌ها دادهٔ مصنوعی‌اند و جدا از پاسخ شرکت‌کنندگان واقعی تحلیل خواهند شد.',
 };
 // ===========================================================================
 
@@ -253,6 +254,7 @@ function renderIntro(root) {
   const card = h('section', { class: 'card' });
   card.append(h('h2', { class: 'intro-heading', 'data-v': 'intro-heading', 'data-focus': '', tabindex: '-1', text: content.intro.heading }));
   if (CONFIG.TEST_NOTICE) card.append(h('p', { class: 'test-notice', 'data-chrome': '', text: CONFIG.TEST_NOTICE }));
+  if (CONFIG.TEST_NOTICE && CONFIG.TEST_NOTICE_DETAIL) card.append(h('p', { 'data-chrome': '', text: CONFIG.TEST_NOTICE_DETAIL }));
   for (const [i, para] of content.intro.paragraphs.entries()) {
     if (CONFIG.TEST_NOTICE && (i < 2 || para.kind === 'retention')) continue;
     if (para.kind === 'researcher') { if (CONFIG.SHOW_RESEARCHER) card.append(researcherLine(para.text)); }
