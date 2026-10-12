@@ -22,6 +22,9 @@ export const CONFIG = {
   // null = use the retention paragraph of the approved questionnaire as written. After the
   // university approves the final policy and hosting details, put the final paragraph here.
   RETENTION_TEXT: 'داده‌ها تا دو سال پس از دفاع پایان‌نامه، فقط با دسترسی پژوهشگر و نظارت مجاز دانشگاه نگهداری می‌شوند و سپس داده‌های فردی حذف می‌شوند. نتایج فقط به‌صورت گروهی و برای این پژوهش دانشگاهی گزارش می‌شوند.',
+  // Test phase: while set, this one paragraph replaces the first three intro paragraphs (purpose,
+  // voluntary/no-personal-data text, retention). Set to null before the public launch.
+  TEST_NOTICE: 'تجمیع داده‌های آزمایشی پیش از انتشار عمومی',
 };
 // ===========================================================================
 
@@ -249,7 +252,9 @@ function renderIntro(root) {
   }
   const card = h('section', { class: 'card' });
   card.append(h('h2', { class: 'intro-heading', 'data-v': 'intro-heading', 'data-focus': '', tabindex: '-1', text: content.intro.heading }));
-  for (const para of content.intro.paragraphs) {
+  if (CONFIG.TEST_NOTICE) card.append(h('p', { class: 'test-notice', 'data-chrome': '', text: CONFIG.TEST_NOTICE }));
+  for (const [i, para] of content.intro.paragraphs.entries()) {
+    if (CONFIG.TEST_NOTICE && (i < 2 || para.kind === 'retention')) continue;
     if (para.kind === 'researcher') { if (CONFIG.SHOW_RESEARCHER) card.append(researcherLine(para.text)); }
     else card.append(h('p', { 'data-v': 'para', text: para.kind === 'retention' && CONFIG.RETENTION_TEXT ? CONFIG.RETENTION_TEXT : para.text }));
   }

@@ -188,3 +188,5 @@ textarea.free {
 .thanks h2 { font-size: var(--text-heading-sm); font-weight: 700; color: var(--color-primary); margin-block-end: var(--space-2); }
 
 @media (prefers-reduced-motion: reduce) { .progress-fill { transition: none; } }
+
+.test-notice { font-weight: 700; font-size: var(--text-label); color: var(--color-primary); margin-block-end: var(--space-2); }
