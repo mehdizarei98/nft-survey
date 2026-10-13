@@ -19,13 +19,19 @@ export const CONFIG = {
   UNIVERSITY: '..........',
   SUPERVISOR: '..........',
   CONTACT: '..........',
+  // null = use the first two intro paragraphs (purpose; voluntary/no-personal-data) of the approved
+  // questionnaire as written. Otherwise a shorter wording of the same points (owner decision 2026-10-13).
+  INTRO_TEXT: [
+    'این پژوهش برای شناخت نیازهای کاربران ایرانی و طراحی یک بازار NFT انجام می‌شود. تجربهٔ قبلی لازم نیست و پاسخ درست یا غلط وجود ندارد.',
+    'شرکت داوطلبانه است، سؤال‌های محتوایی اختیاری‌اند و تا پیش از ارسال می‌توانید منصرف شوید. نام، اطلاعات حساب، آدرس کیف پول یا مدرک هویتی پرسیده نمی‌شود؛ در پاسخ‌های متنی هم اطلاعات شناسایی ننویسید. چون پاسخ‌ها بی‌نام‌اند، پس از ارسال نمی‌توان پاسخ شما را پیدا و حذف کرد.',
+  ],
   // null = use the retention paragraph of the approved questionnaire as written. After the
   // university approves the final policy and hosting details, put the final paragraph here.
-  RETENTION_TEXT: 'داده‌ها تا دو سال پس از دفاع پایان‌نامه، فقط با دسترسی پژوهشگر و نظارت مجاز دانشگاه نگهداری می‌شوند و سپس داده‌های فردی حذف می‌شوند. نتایج فقط به‌صورت گروهی و برای این پژوهش دانشگاهی گزارش می‌شوند.',
+  RETENTION_TEXT: 'داده‌ها تا دو سال پس از دفاع، فقط در دسترس پژوهشگر و ناظر مجاز دانشگاه نگهداری و سپس حذف می‌شوند. نتایج فقط به‌صورت گروهی گزارش می‌شوند.',
   // Test phase: while set, this one paragraph replaces the first three intro paragraphs (purpose,
   // voluntary/no-personal-data text, retention). Set to null before the public launch.
-  TEST_NOTICE: 'تجمیع داده‌های آزمایشی پیش از انتشار عمومی',
-  TEST_NOTICE_DETAIL: 'بخشی از پاسخ‌های این مرحله را عامل‌های هوش مصنوعی با پرسوناهای ساختگی برای آزمون سامانه تولید می‌کنند. این پاسخ‌ها دادهٔ مصنوعی‌اند و جدا از پاسخ شرکت‌کنندگان واقعی تحلیل خواهند شد.',
+  TEST_NOTICE: null,
+  TEST_NOTICE_DETAIL: null,
 };
 // ===========================================================================
 
@@ -258,7 +264,11 @@ function renderIntro(root) {
   for (const [i, para] of content.intro.paragraphs.entries()) {
     if (CONFIG.TEST_NOTICE && (i < 2 || para.kind === 'retention')) continue;
     if (para.kind === 'researcher') { if (CONFIG.SHOW_RESEARCHER) card.append(researcherLine(para.text)); }
-    else card.append(h('p', { 'data-v': 'para', text: para.kind === 'retention' && CONFIG.RETENTION_TEXT ? CONFIG.RETENTION_TEXT : para.text }));
+    else {
+      const text = para.kind === 'retention' && CONFIG.RETENTION_TEXT ? CONFIG.RETENTION_TEXT
+        : i < 2 && CONFIG.INTRO_TEXT?.[i] ? CONFIG.INTRO_TEXT[i] : para.text;
+      card.append(h('p', { 'data-v': 'para', text }));
+    }
   }
   const err = h('p', { class: 'msg error', role: 'alert', id: 'entry-error', 'data-chrome': '' });
   survey.entry_controls.forEach((c, i) => {
