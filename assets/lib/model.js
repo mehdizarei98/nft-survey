@@ -1,11 +1,10 @@
 // Shared survey logic. Plain ES module: loaded by the page, imported by the Worker
 // (bundled by wrangler) and by the Node scripts. Nothing here touches the DOM or Node APIs.
 //
-// Source of truth: assets/survey.json (copy of input/survey_codes_v4_4.json) and
+// Source of truth: assets/survey.json (copy of input/survey_codes_v1.json) and
 // input/SURVEY-DATA-SCHEMA.md. Answers are plain objects:
 //   { A01: 3, A02: [1, 2], Z01: "text" }   (missing key = not answered)
-// Version 4.4 adds F05/F06, D01-D03 and a per-respondent option order (survey.option_order).
-// LEGACY_4_3 describes what a stored 4.3 row did not have, so old rows still export correctly.
+// Current definition carries version 1. LEGACY_4_3 describes what an old stored row did not have.
 
 export const CHANNELS = ['uni', 'art', 'crypto', 'social', 'other'];
 export const MAX_TEXT = 1000;
@@ -71,7 +70,7 @@ export const LEGACY_4_3 = {
 /** A stored row of another (older) form_version selects its legacy description; the current version has none. */
 const legacyOf = (survey, formVersion) => (formVersion === LEGACY_4_3.version && formVersion !== survey.version ? LEGACY_4_3 : null);
 
-// ---------------------------------------------------------------- option order (v4.4)
+// ---------------------------------------------------------------- option order
 
 /** Questions whose options are shown in a per-respondent random order (survey.option_order). */
 export const randomizedIds = (survey) => survey.option_order?.randomized_questions ?? [];
@@ -233,8 +232,8 @@ export const META_COLUMNS = [
 
 /**
  * Column order per question (SURVEY-DATA-SCHEMA.md): Q__state first, then
- *   single -> Q ; multiple -> Q_<code>... then Q__visible, then Q__order (randomized questions,
- *   v4.4) ; text -> Q ; P01 additionally ends with P01_variant.
+ *   single -> Q ; multiple -> Q_<code>... then Q__visible, then Q__order (randomized questions)
+ *   ; text -> Q ; P01 additionally ends with P01_variant.
  */
 export function buildColumns(survey) {
   const cols = [...META_COLUMNS];
@@ -255,8 +254,8 @@ export function buildColumns(survey) {
 /**
  * One CSV row (object keyed by column) for a validated submission.
  * meta: { response_id, source, persona_id, generator, form_version?, started_at, submitted_at, duration_sec, channel }
- * `form_version` defaults to the survey's. A stored 4.3 row gets not_shown for the 4.4-only questions,
- * no 4.4-only options and an empty `__order`. optionOrders: the stored { Q: [all codes] }; the export
+ * `form_version` defaults to the survey's. A stored 4.3 row gets not_shown for later questions,
+ * no later options and an empty `__order`. optionOrders: the stored { Q: [all codes] }; the export
  * holds the visible codes in that order.
  */
 export function buildRow(survey, meta, rawAnswers, optionOrders = {}) {
@@ -377,16 +376,13 @@ export function checkAnswer(q, v) {
  * Validate a submission payload (the JSON the form POSTs). Pure; time checks are done by the caller
  * because they need the clock. Returns { ok, errors, honeypot, answers, channel } .
  */
-export function validateSubmission(survey, payload, legacySurveys = {}) {
+export function validateSubmission(survey, payload) {
   const errors = [];
   const fail = (m) => errors.push(m);
   if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
     return { ok: false, errors: ['payload must be an object'], honeypot: false };
   }
-  // A payload of an older form version (e.g. a page opened before the 4.4 deploy) is judged against that
-  // version's own codes JSON, which has no option_order block, so option_order is refused for it.
-  const older = Object.hasOwn(legacySurveys, payload.form_version) ? legacySurveys[payload.form_version] : null;
-  if (older && payload.form_version !== survey.version) return validateSubmission(older, payload);
+  // Only the current definition may be submitted. Historical rows remain exportable through buildRow.
   if (!randomizedIds(survey).length && payload.option_order !== undefined) fail(`option_order is not allowed for form_version ${survey.version}`);
   for (const k of Object.keys(payload)) {
     if (!ALLOWED_KEYS.has(k)) fail(`unknown field: ${k}`);
@@ -399,8 +395,7 @@ export function validateSubmission(survey, payload, legacySurveys = {}) {
   }
   const conf = payload.confirmations;
   if (!conf || conf.G01 !== true || conf.G02 !== true) fail('G01 and G02 must be confirmed');
-  const channel = payload.channel ?? '';
-  if (channel !== '' && !CHANNELS.includes(channel)) fail('invalid channel');
+  const channel = typeof payload.channel === 'string' ? payload.channel : '';
 
   const answers = payload.answers;
   if (answers === null || typeof answers !== 'object' || Array.isArray(answers)) {

@@ -1,4 +1,4 @@
-// Public survey form (v4.4). Vanilla ES modules, no build step.
+// Public survey form. Vanilla ES modules, no build step.
 // Questions/options come from survey.json, wording of every other text from content.json
 // (both generated from the approved files; nothing is hand-typed here). Strings marked
 // "chrome" below are interface texts that are not part of the questionnaire.
@@ -25,7 +25,7 @@ export const CONFIG = {
     'این پژوهش برای شناخت نیازهای کاربران ایرانی و طراحی یک بازار NFT انجام می‌شود. تجربهٔ قبلی لازم نیست و پاسخ درست یا غلط وجود ندارد.',
     'شرکت داوطلبانه است و تا پیش از ارسال می‌توانید منصرف شوید. پاسخ به همهٔ سؤال‌های نمایش‌داده‌شده، به‌جز نظر متنی پایانی، لازم است؛ می‌توانید از گزینه‌های «نمی‌دانم»، «نامرتبط» یا «ترجیح می‌دهم پاسخ ندهم» در سؤال‌های مربوط استفاده کنید. نام، اطلاعات حساب، آدرس کیف پول یا مدرک هویتی پرسیده نمی‌شود؛ در پاسخ‌های متنی هم اطلاعات شناسایی ننویسید. چون پاسخ‌ها بی‌نام‌اند، پس از ارسال نمی‌توان پاسخ شما را پیدا و حذف کرد.',
   ],
-  // Owner decision 2026-10-13; also recorded in input/survey_v4_4.md.
+  // Owner decision 2026-10-13; also recorded in input/survey_v1.md.
   RETENTION_TEXT: 'داده‌ها فقط در دسترس پژوهشگر است، تا پایان دفاع از پایان‌نامه نگهداری و پس از آن حذف می‌شود. نتایج فقط به‌صورت گروهی و بدون هیچ اطلاعات شناسایی گزارش می‌شوند.',
   // Test phase: while set, this one paragraph replaces the first three intro paragraphs (purpose,
   // voluntary/no-personal-data text, retention). Set to null before the public launch.
@@ -35,7 +35,7 @@ export const CONFIG = {
 // ===========================================================================
 
 const PLACEHOLDER = '..........';
-const DRAFT_KEY = 'nft-survey:4.4:draft';
+const DRAFT_KEY = 'nft-survey:1:draft';
 const SUBMIT_TIMEOUT_MS = 20000;
 
 // Page order of the public form (guide §3); a page is shown only if one of its questions is.
@@ -143,7 +143,7 @@ function channelFromUrl() {
   const raw = new URLSearchParams(location.search).get('c');
   if (raw === null || raw.trim() === '') return '';
   const c = raw.trim().toLowerCase();
-  return CHANNELS.includes(c) ? c : 'other';
+  return CHANNELS.includes(c) ? c : '';
 }
 
 const isLocalHost = () => ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
