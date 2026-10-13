@@ -3,7 +3,7 @@
 // (both generated from the approved files; nothing is hand-typed here). Strings marked
 // "chrome" below are interface texts that are not part of the questionnaire.
 import {
-  CHANNELS, isShown, visibleCodes, normalize, roleOf, optionOrder, shownOptionOrders,
+  CHANNELS, isShown, visibleCodes, normalize, roleOf, optionOrder, shownOptionOrders, missingRequiredIds,
 } from './lib/model.js';
 
 // ============================================================ PRE-LAUNCH CONFIG
@@ -12,22 +12,21 @@ export const CONFIG = {
   // Base URL of the Cloudflare Worker, no trailing slash, e.g. 'https://survey-api.example.ir'.
   // Empty = not configured. On localhost the form falls back to http://localhost:8787 (wrangler dev).
   API_BASE: 'https://nft-survey-api.cezar98.workers.dev',
-  // false = the researcher line is not shown at all (anonymous academic survey; owner decision 2026-10-09).
-  SHOW_RESEARCHER: false,
+  // Owner decision 2026-10-13: show supplied researcher/contact; omit unfilled lines.
+  SHOW_RESEARCHER: true,
   // Researcher block shown in the introduction when SHOW_RESEARCHER is true. '..........' = placeholder.
-  RESEARCHER: '..........',
+  RESEARCHER: 'مهدی زارعی',
   UNIVERSITY: '..........',
   SUPERVISOR: '..........',
-  CONTACT: '..........',
+  CONTACT: 'mehdi.zarei@mail.ir',
   // null = use the first two intro paragraphs (purpose; voluntary/no-personal-data) of the approved
   // questionnaire as written. Otherwise a shorter wording of the same points (owner decision 2026-10-13).
   INTRO_TEXT: [
     'این پژوهش برای شناخت نیازهای کاربران ایرانی و طراحی یک بازار NFT انجام می‌شود. تجربهٔ قبلی لازم نیست و پاسخ درست یا غلط وجود ندارد.',
-    'شرکت داوطلبانه است، سؤال‌های محتوایی اختیاری‌اند و تا پیش از ارسال می‌توانید منصرف شوید. نام، اطلاعات حساب، آدرس کیف پول یا مدرک هویتی پرسیده نمی‌شود؛ در پاسخ‌های متنی هم اطلاعات شناسایی ننویسید. چون پاسخ‌ها بی‌نام‌اند، پس از ارسال نمی‌توان پاسخ شما را پیدا و حذف کرد.',
+    'شرکت داوطلبانه است و تا پیش از ارسال می‌توانید منصرف شوید. پاسخ به همهٔ سؤال‌های نمایش‌داده‌شده، به‌جز نظر متنی پایانی، لازم است؛ می‌توانید از گزینه‌های «نمی‌دانم»، «نامرتبط» یا «ترجیح می‌دهم پاسخ ندهم» در سؤال‌های مربوط استفاده کنید. نام، اطلاعات حساب، آدرس کیف پول یا مدرک هویتی پرسیده نمی‌شود؛ در پاسخ‌های متنی هم اطلاعات شناسایی ننویسید. چون پاسخ‌ها بی‌نام‌اند، پس از ارسال نمی‌توان پاسخ شما را پیدا و حذف کرد.',
   ],
-  // null = use the retention paragraph of the approved questionnaire as written. After the
-  // university approves the final policy and hosting details, put the final paragraph here.
-  RETENTION_TEXT: 'داده‌ها تا دو سال پس از دفاع، فقط در دسترس پژوهشگر و ناظر مجاز دانشگاه نگهداری و سپس حذف می‌شوند. نتایج فقط به‌صورت گروهی گزارش می‌شوند.',
+  // Owner decision 2026-10-13; also recorded in input/survey_v4_4.md.
+  RETENTION_TEXT: 'داده‌ها فقط در دسترس پژوهشگر است، تا پایان دفاع از پایان‌نامه نگهداری و پس از آن حذف می‌شود. نتایج فقط به‌صورت گروهی و بدون هیچ اطلاعات شناسایی گزارش می‌شوند.',
   // Test phase: while set, this one paragraph replaces the first three intro paragraphs (purpose,
   // voluntary/no-personal-data text, retention). Set to null before the public launch.
   TEST_NOTICE: null,
@@ -66,7 +65,9 @@ const T = {
   clear: 'پاک کردن انتخاب',
   maxReached: (max) => `حداکثر ${fa(max)} گزینه انتخاب شده است؛ برای انتخاب گزینه دیگر، یکی از گزینه‌های انتخاب‌شده را بردارید.`,
   reviewHeading: 'مرور پاسخ‌ها',
-  reviewHint: 'پاسخ‌دادن به سؤال‌های محتوایی اختیاری است. اگر آماده‌اید، پاسخ‌ها را ارسال کنید.',
+  reviewHint: 'پاسخ‌ها را مرور کنید. فقط نظر متنی پایانی اختیاری است. اگر آماده‌اید، پاسخ‌ها را ارسال کنید.',
+  required: 'لطفاً به این سؤال پاسخ دهید.',
+  requiredMultiple: 'لطفاً دست‌کم یک گزینه برای این سؤال انتخاب کنید.',
   noAnswer: 'بدون پاسخ',
   edit: 'ویرایش',
   submit: 'ارسال پاسخ‌ها',
@@ -156,7 +157,7 @@ function apiBase() {
   return CONFIG.API_BASE;
 }
 
-const hasPlaceholders = () => (CONFIG.SHOW_RESEARCHER && [CONFIG.RESEARCHER, CONFIG.UNIVERSITY, CONFIG.SUPERVISOR, CONFIG.CONTACT].includes(PLACEHOLDER)) || !apiBase();
+const hasPlaceholders = () => [CONFIG.RESEARCHER, CONFIG.CONTACT].some((v) => !v?.trim() || v === PLACEHOLDER) || !apiBase();
 
 // ------------------------------------------------------------ flow
 const visiblePages = (answers) => PAGES.filter((p) => p.ids.some((id) => isShown(survey, id, answers)));
@@ -177,6 +178,7 @@ function go(phase, pageId) {
 }
 
 function nextFrom(pageId) {
+  if (!validatePage()) return;
   const { pages, index } = pageIndex(pageId);
   if (index === -1) return pages[0] ? go('page', pages[0].id) : go('review');
   return pages[index + 1] ? go('page', pages[index + 1].id) : go('review');
@@ -237,14 +239,15 @@ function header() {
 function researcherLine(text) {
   const keys = { 'پژوهشگر': 'RESEARCHER', 'دانشگاه': 'UNIVERSITY', 'استاد راهنما': 'SUPERVISOR', 'تماس پژوهشی': 'CONTACT' };
   const p = h('p', { 'data-v': 'para' });
-  text.split(' | ').forEach((seg, i) => {
+  text.split(' | ').forEach((seg) => {
     const [label] = seg.split(':');
     const value = CONFIG[keys[label.trim()]] ?? seg.slice(label.length + 1).trim();
-    if (i) p.append(' | ');
+    if (!value?.trim() || value === PLACEHOLDER) return;
+    if (p.childNodes.length) p.append(' | ');
     p.append(`${label.trim()}: `);
-    p.append(value === PLACEHOLDER ? h('mark', { class: 'placeholder', text: value }) : value);
+    p.append(value);
   });
-  return p;
+  return p.childNodes.length ? p : null;
 }
 
 function renderIntro(root) {
@@ -315,6 +318,22 @@ function resume(draft) {
 // ---- question pages
 let live = { blocks: [], sections: [], progress: null };
 
+function setQuestionError(block, invalid) {
+  block.error.textContent = invalid ? (block.q.type === 'multiple' ? T.requiredMultiple : T.required) : '';
+  for (const el of [block.el, ...block.inputs]) {
+    if (invalid) el.setAttribute('aria-invalid', 'true');
+    else el.removeAttribute('aria-invalid');
+  }
+}
+
+function validatePage() {
+  const missing = new Set(missingRequiredIds(survey, state.answers, live.blocks.map((b) => b.q.id)));
+  for (const block of live.blocks) setQuestionError(block, missing.has(block.q.id));
+  const first = live.blocks.find((b) => missing.has(b.q.id));
+  if (first) first.inputs.find((input, i) => !input.disabled && !first.labels[i]?.hidden)?.focus();
+  return !first;
+}
+
 function questionBlock(q) {
   const m = content.questions[q.id];
   const noteId = `${q.id}-note`;
@@ -325,6 +344,10 @@ function questionBlock(q) {
   const describedBy = [];
   if (m.note) { fs.append(h('p', { class: 'q-note', id: noteId, 'data-v': 'note', text: m.note })); describedBy.push(noteId); }
   const block = { q, el: fs, inputs: [], labels: [], opts: [], status: null, clear: null };
+  block.error = h('p', { class: 'msg error', id: `${q.id}-error`, role: 'alert', 'data-chrome': '' });
+  describedBy.push(block.error.id);
+  fs.setAttribute('aria-describedby', describedBy.join(' '));
+  if (q.id !== 'Z01') fs.setAttribute('aria-required', 'true');
 
   if (q.type === 'text') {
     const id = `${q.id}-field`;
@@ -334,6 +357,7 @@ function questionBlock(q) {
     if (describedBy.length) ta.setAttribute('aria-describedby', describedBy.join(' '));
     block.inputs.push(ta);
     fs.append(ta);
+    fs.append(block.error);
     return block;
   }
 
@@ -362,6 +386,8 @@ function questionBlock(q) {
     fs.append(block.clear);
   }
   if (describedBy.length) fs.setAttribute('aria-describedby', describedBy.join(' '));
+  for (const input of block.inputs) input.setAttribute('aria-describedby', describedBy.join(' '));
+  fs.append(block.error);
   return block;
 }
 
@@ -421,6 +447,7 @@ function syncPage() {
   for (const b of live.blocks) {
     const q = b.q;
     b.el.hidden = !isShown(survey, q.id, a);
+    if (b.el.hidden || !missingRequiredIds(survey, a, [q.id]).length) setQuestionError(b, false);
     if (q.type === 'text') {
       if (document.activeElement !== b.inputs[0]) b.inputs[0].value = a[q.id] ?? '';
       continue;
@@ -504,6 +531,15 @@ function buildPayload() {
 let sending = false;
 async function submitForm(button, msg) {
   if (sending) return;
+  const missing = missingRequiredIds(survey, normalize(survey, state.answers));
+  if (missing.length) {
+    state.pending = null;
+    go('page', pageOf(missing[0]).id);
+    validatePage();
+    return;
+  }
+  // A pending payload from an older draft may predate the required-answer rule.
+  if (state.pending && missingRequiredIds(survey, state.pending.answers || {}).length) state.pending = null;
   const base = apiBase();
   if (!base) { msg.className = 'msg error'; msg.textContent = T.noApi; return; }
   sending = true;

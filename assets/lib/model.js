@@ -216,6 +216,13 @@ export function stateOf(survey, q, answers, formVersion) {
   return answered ? 'answered' : 'shown_no_answer';
 }
 
+/** Required answers for new submissions; export of historical incomplete rows stays unchanged. */
+export function missingRequiredIds(survey, answers, ids = survey.questions.map((q) => q.id)) {
+  const scope = new Set(ids);
+  return survey.questions.filter((q) => scope.has(q.id) && q.id !== 'Z01'
+    && stateOf(survey, q, answers) === 'shown_no_answer').map((q) => q.id);
+}
+
 // ---------------------------------------------------------------- columns / CSV
 
 export const META_COLUMNS = [
@@ -418,7 +425,9 @@ export function validateSubmission(survey, payload, legacySurveys = {}) {
     }
     seen[q.id] = v;
   }
-  const clean = normalize(survey, answers);
+  // Only validated values reach normalize (malformed arrays must produce 400, never throw).
+  const clean = normalize(survey, seen);
+  for (const id of missingRequiredIds(survey, clean)) fail(`${id}: answer required`);
   if (!errors.length) errors.push(...checkOptionOrder(survey, payload.option_order, clean));
   const ok = errors.length === 0;
   return { ok, errors, honeypot, channel, answers: ok ? clean : undefined, optionOrder: ok ? (payload.option_order ?? {}) : undefined };
