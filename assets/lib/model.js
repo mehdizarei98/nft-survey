@@ -8,8 +8,8 @@
 
 export const CHANNELS = ['uni', 'art', 'crypto', 'social', 'other'];
 export const MAX_TEXT = 1000;
-// Isolate pre-revision drafts: L06 code 5 changed meaning; form_version remains 1.
-export const DRAFT_KEY = 'nft-survey:1:20261014-add2:draft';
+// Isolate pre-revision drafts: L06 is now single choice with ordered levels; version stays 1.
+export const DRAFT_KEY = 'nft-survey:1:20261015-add3:draft';
 
 // question id -> key of survey.routing that makes it visible (guide §4/§5).
 // Questions not listed are always shown.
@@ -65,14 +65,14 @@ export function branchOf(survey, answers) {
 // were not shown and these option codes did not exist, so they stay `not_shown` / empty in the export.
 export const LEGACY_4_3 = {
   version: '4.3',
-  notShown: ['F05', 'F06', 'F07', 'F08', 'L06', 'D01', 'D02', 'D03'],
-  absentCodes: { N01: [11, 12], P01: [9, 10] },
+  notShown: ['F05', 'F06', 'F07', 'F08', 'F09', 'L06', 'D01', 'D02', 'D03'],
+  absentCodes: { E02: [12], N01: [11, 12, 13], P01: [9, 10] },
 };
 
 /** A stored row of another (older) form_version selects its legacy description; the current version has none. */
 const legacyOf = (survey, formVersion) => formVersion === survey.version ? null
   : formVersion === '4.3' ? LEGACY_4_3
-    : formVersion === '4.4' ? { notShown: ['F07', 'F08', 'L06'], absentCodes: {} } : null;
+    : formVersion === '4.4' ? { notShown: ['F07', 'F08', 'F09', 'L06'], absentCodes: { E02: [12], N01: [13] } } : null;
 
 // ---------------------------------------------------------------- option order
 
