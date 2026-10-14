@@ -8,6 +8,8 @@
 
 export const CHANNELS = ['uni', 'art', 'crypto', 'social', 'other'];
 export const MAX_TEXT = 1000;
+// Isolate pre-revision drafts: L06 code 5 changed meaning; form_version remains 1.
+export const DRAFT_KEY = 'nft-survey:1:20261014-add2:draft';
 
 // question id -> key of survey.routing that makes it visible (guide §4/§5).
 // Questions not listed are always shown.
@@ -63,12 +65,14 @@ export function branchOf(survey, answers) {
 // were not shown and these option codes did not exist, so they stay `not_shown` / empty in the export.
 export const LEGACY_4_3 = {
   version: '4.3',
-  notShown: ['F05', 'F06', 'D01', 'D02', 'D03'],
+  notShown: ['F05', 'F06', 'F07', 'F08', 'L06', 'D01', 'D02', 'D03'],
   absentCodes: { N01: [11, 12], P01: [9, 10] },
 };
 
 /** A stored row of another (older) form_version selects its legacy description; the current version has none. */
-const legacyOf = (survey, formVersion) => (formVersion === LEGACY_4_3.version && formVersion !== survey.version ? LEGACY_4_3 : null);
+const legacyOf = (survey, formVersion) => formVersion === survey.version ? null
+  : formVersion === '4.3' ? LEGACY_4_3
+    : formVersion === '4.4' ? { notShown: ['F07', 'F08', 'L06'], absentCodes: {} } : null;
 
 // ---------------------------------------------------------------- option order
 
@@ -242,6 +246,7 @@ export function buildColumns(survey) {
     if (q.type === 'multiple') {
       for (const o of q.options) cols.push(`${q.id}_${o.code}`);
       cols.push(`${q.id}__visible`);
+      if (q.csv_selected_set) cols.push(`${q.id}__selected`);
       if (randomizedIds(survey).includes(q.id)) cols.push(`${q.id}__order`);
       if (q.id === 'P01') cols.push('P01_variant');
     } else {
@@ -254,13 +259,12 @@ export function buildColumns(survey) {
 /**
  * One CSV row (object keyed by column) for a validated submission.
  * meta: { response_id, source, persona_id, generator, form_version?, started_at, submitted_at, duration_sec, channel }
- * `form_version` defaults to the survey's. A stored 4.3 row gets not_shown for later questions,
+ * `form_version` defaults to the survey's. Historical 4.3/4.4 rows get not_shown for later questions,
  * no later options and an empty `__order`. optionOrders: the stored { Q: [all codes] }; the export
  * holds the visible codes in that order.
  */
 export function buildRow(survey, meta, rawAnswers, optionOrders = {}) {
   const formVersion = meta.form_version ?? survey.version;
-  const legacy = legacyOf(survey, formVersion);
   const answers = normalize(survey, rawAnswers);
   const row = {
     response_id: meta.response_id,
@@ -290,8 +294,12 @@ export function buildRow(survey, meta, rawAnswers, optionOrders = {}) {
           ? (v.includes(o.code) ? '1' : '0') : '';
       }
       row[`${q.id}__visible`] = vis.join(';');
+      if (q.csv_selected_set) {
+        row[`${q.id}__selected`] = state === 'answered'
+          ? vis.filter((code) => v.includes(code)).join(';') : '';
+      }
       if (randomizedIds(survey).includes(q.id)) {
-        const ord = shown && !legacy && Array.isArray(optionOrders?.[q.id]) ? optionOrders[q.id] : [];
+        const ord = shown && formVersion !== LEGACY_4_3.version && Array.isArray(optionOrders?.[q.id]) ? optionOrders[q.id] : [];
         row[`${q.id}__order`] = ord.filter((c) => vis.includes(c)).join(';');
       }
       if (q.id === 'P01') row.P01_variant = p01Variant(survey, answers);

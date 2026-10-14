@@ -3,7 +3,7 @@
 // (both generated from the approved files; nothing is hand-typed here). Strings marked
 // "chrome" below are interface texts that are not part of the questionnaire.
 import {
-  CHANNELS, isShown, visibleCodes, normalize, roleOf, optionOrder, shownOptionOrders, missingRequiredIds,
+  CHANNELS, DRAFT_KEY, isShown, visibleCodes, normalize, roleOf, optionOrder, shownOptionOrders, missingRequiredIds,
 } from './lib/model.js';
 
 // ============================================================ PRE-LAUNCH CONFIG
@@ -35,7 +35,6 @@ export const CONFIG = {
 // ===========================================================================
 
 const PLACEHOLDER = '..........';
-const DRAFT_KEY = 'nft-survey:1:draft';
 const SUBMIT_TIMEOUT_MS = 20000;
 
 // Page order of the public form (guide §3); a page is shown only if one of its questions is.
@@ -44,8 +43,8 @@ const PAGES = [
   { id: 'p2', ids: ['A02', 'A03', 'A04', 'A05'], definition: true },
   { id: 'p3', ids: ['E01', 'E02', 'E03', 'E04', 'N01'] },
   { id: 'p4', ids: ['B01', 'C01'] },
-  { id: 'p5', ids: ['L01', 'L02', 'L03', 'L05'] },
-  { id: 'p6', ids: ['F01', 'F02', 'F03', 'F04', 'F05', 'F06', 'B02', 'C02'] },
+  { id: 'p5', ids: ['L01', 'L02', 'L03', 'L05', 'L06'] },
+  { id: 'p6', ids: ['F01', 'F02', 'F03', 'F04', 'F05', 'F06', 'F07', 'F08', 'B02', 'C02'] },
   { id: 'p7', ids: ['P01', 'D01', 'D02', 'D03', 'Z01'] },
 ];
 
